@@ -1,0 +1,24 @@
+{
+  "name": "i-lateral/silverstripe-auth-username",
+  "description": "Adds username authentication and username or email login to a silverstripe install",
+  "type": "silverstripe-module",
+    "homepage": "https://github.com/i-lateral/silverstripe-auth-username",
+    "keywords": ["silverstripe", "tweaks"],
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Morven Lewis-Everley",
+            "email": "morven@i-lateral.com"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/i-lateral/silverstripe-auth-username/issues"
+    },
+    "require": {
+        "silverstripe/framework": ">=3.1",
+        "silverstripe/cms": ">=3.1"
+    },
+    "extra": {
+        "installer-name": "auth-username"
+    }
+}
