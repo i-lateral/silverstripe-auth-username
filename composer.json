@@ -15,8 +15,7 @@
         "issues": "https://github.com/i-lateral/silverstripe-auth-username/issues"
     },
     "require": {
-        "silverstripe/framework": ">=3.1",
-        "silverstripe/cms": ">=3.1"
+        "silverstripe/framework": ">=3.1"
     },
     "extra": {
         "installer-name": "auth-username"
