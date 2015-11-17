@@ -5,19 +5,6 @@ class UsernameOrEmailLoginForm extends MemberLoginForm {
     protected $authenticator_class = 'UsernameOrEmailAuthenticator';
 
     public function __construct($controller, $name, $fields = null, $actions = null, $checkCurrentUser = true) {
-
-        $form_action_url = Controller::join_links(
-            BASE_URL,
-            "Security",
-            $name
-        );
-
-        $lost_password_url = Controller::join_links(
-            BASE_URL,
-            "Security",
-            "lostpassword"
-        );
-
         if(isset($_REQUEST['BackURL']))
             $backURL = $_REQUEST['BackURL'];
         else
@@ -25,7 +12,7 @@ class UsernameOrEmailLoginForm extends MemberLoginForm {
 
         $fields = new FieldList(
             HiddenField::create("AuthenticationMethod", null, $this->authenticator_class, $this),
-            TextField::create('Identity', 'Username or Email'),
+            TextField::create('Identity', _t('Member.IDENTITY', 'Username or Email')),
             PasswordField::create("Password", _t('Member.PASSWORD', 'Password'))
         );
 
@@ -36,20 +23,17 @@ class UsernameOrEmailLoginForm extends MemberLoginForm {
             ));
         }
 
-        $actions = new FieldList(
-            FormAction::create('dologin', 'Login'),
-            LiteralField::create(
-                'forgotPassword',
-                '<p id="ForgotPassword"><a href="' . $lost_password_url . '">'
-                . _t('Member.BUTTONLOSTPASSWORD', "I've lost my password") . '</a></p>'
-            )
-        );
-
         // LoginForm does its magic
         parent::__construct($controller, $name, $fields, $actions);
 
-        $this
-            ->setAttribute("action",$form_action_url);
+        // Focus on the email input when the page is loaded
+        $js = <<<JS
+            (function() {
+                var el = document.getElementById("UsernameOrEmailLoginForm_LoginForm_Identity");
+                if(el && el.focus && (typeof jQuery == 'undefined' || jQuery(el).is(':visible'))) el.focus();
+            })();
+JS;
+        Requirements::customScript($js);
     }
 
     //call our own Authenticator
