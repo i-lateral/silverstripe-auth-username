@@ -17,8 +17,6 @@ class UsernameOrEmailAuthenticator extends Authenticator {
      *
      */
     public static function authenticate($RAW_data, Form $form = null) {
-        $message = "Oops, we don't recognise these details.";
-
         if(array_key_exists('Identity', $RAW_data) && $RAW_data['Identity']){
             $SQL_user = Convert::raw2sql($RAW_data['Identity']);
         } else {
@@ -111,7 +109,7 @@ class UsernameOrEmailAuthenticator extends Authenticator {
         if($member) {
             Session::clear('BackURL');
         } else {
-            if($form && $result) $form->sessionMessage($message, 'bad');
+            if($form && $result) $form->sessionMessage(_t('Member.ERRORWRONGCRED'), 'bad');
         }
 
         return $member;
@@ -120,7 +118,7 @@ class UsernameOrEmailAuthenticator extends Authenticator {
     // Tell this Authenticator to use your custom login form
     // The 3rd parameter MUST be 'LoginForm' to fit within the authentication framework
     public static function get_login_form(Controller $controller) {
-        return Object::create("UsernameOrEmailLoginForm", $controller, "LoginForm");
+        return UsernameOrEmailLoginForm::create($controller, "LoginForm");
     }
 
     // give a title to the Authenticator tab (when multiple Authenticators are registered)
