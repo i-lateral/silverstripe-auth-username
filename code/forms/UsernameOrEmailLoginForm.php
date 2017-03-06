@@ -25,7 +25,7 @@ class UsernameOrEmailLoginForm extends MemberLoginForm {
 
         $fields = new FieldList(
             HiddenField::create("AuthenticationMethod", null, $this->authenticator_class, $this),
-            TextField::create('Identity', 'Username or Email'),
+            TextField::create('Identity', _t('AuthUsernameOrEmail.UsernameOrEmail', 'Username or Email')),
             PasswordField::create("Password", _t('Member.PASSWORD', 'Password'))
         );
 
