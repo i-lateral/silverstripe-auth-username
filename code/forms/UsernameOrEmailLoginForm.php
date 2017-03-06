@@ -79,14 +79,26 @@ class UsernameOrEmailLoginForm extends MemberLoginForm
             ->setAttribute("action",$form_action_url);
     }
 
-    //call our own Authenticator
+    /**
+     * Attempt login via our own Authenticator
+     *
+     * @return Member
+     */
     public function performLogin($data)
     {
-        if($member = UsernameOrEmailAuthenticator::authenticate($data, $this)) {
+        $member = false;
+
+        try {
+            $member = UsernameOrEmailAuthenticator::authenticate($data, $this);
             $member->LogIn(isset($data['Remember']));
-            return $member;
-        } else {
-           return false;
+        } catch (ValidationException $e) {
+            error_log($e->getMessage());
+            $this->sessionMessage(_t('AuthUsernameOrEmail.LoginError', 'There was an error logging in'), "bad");
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+            $this->sessionMessage(_t('AuthUsernameOrEmail.LoginError', 'There was an error logging in'), "bad");
         }
+
+        return $member;
     }
 }

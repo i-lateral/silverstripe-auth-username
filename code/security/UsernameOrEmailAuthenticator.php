@@ -1,5 +1,12 @@
 <?php
-class UsernameOrEmailAuthenticator extends Authenticator {
+
+/**
+ * Overwrite MemberAuthenticator and add support for a usernajme as well as
+ * an email address for authentication
+ *
+ */
+class UsernameOrEmailAuthenticator extends MemberAuthenticator
+{
 
     /**
      * @var Array Contains encryption algorithm identifiers.
@@ -12,108 +19,130 @@ class UsernameOrEmailAuthenticator extends Authenticator {
     );
 
     /**
-     * Method to authenticate a user, shamlessly copied and tweaked from
-     * MemberAuthenticator
-     *
-     */
-    public static function authenticate($RAW_data, Form $form = null) {
-        if(array_key_exists('Identity', $RAW_data) && $RAW_data['Identity']){
-            $SQL_user = Convert::raw2sql($RAW_data['Identity']);
-        } else {
-            return false;
-        }
-
+	 * Overwrite standard authentication in order to also look for user ID
+     * (as well as email)
+	 *
+	 * @param array $data
+	 * @param Form $form
+	 * @param bool &$success Success flag
+	 * @return Member Found member, regardless of successful login
+	 */
+	protected static function authenticate_member($data, $form, &$success)
+    {
+		// Default variables
+		$success = false;
+		$member = null;
+		$identity = null;
         $isLockedOut = false;
         $result = null;
+        $filter = null;
 
-        // See if identity is an email address, otherwise, check username
-        if(filter_var($RAW_data['Identity'], FILTER_VALIDATE_EMAIL))
-            $filter = array('Email' => $RAW_data['Identity']);
-        else
-            $filter = array('Username' => $RAW_data['Identity']);
+        // Attempt to identify by temporary ID
+		if(!empty($data['tempid'])) {
+			// Find user by tempid, in case they are re-validating an existing session
+			$member = Member::member_from_tempid($data['tempid']);
+			if ($member) {
+                $identity = $member->Email;
+            }
+		}
 
-        // Default login (see Security::setDefaultAdmin())
-        if(Security::check_default_admin($RAW_data['Identity'], $RAW_data['Password'])) {
-            $member = Security::findAnAdministrator();
+		// Otherwise, get identifier from posted value instead
+		if(!$member && !empty($data['Identity'])) {
+			$identity = $data['Identity'];
+		}
+
+		// Check default login (see Security::setDefaultAdmin())
+		$id_default_admin = $identity === Security::default_admin_username();
+		if($id_default_admin) {
+			// If logging is as default admin, ensure record is setup correctly
+			$member = Member::default_admin();
+			$success = !$member->isLockedOut() && Security::check_default_admin($identity, $data['Password']);
+			//protect against failed login
+			if ($success) {
+				return $member;
+			}
+		}
+
+        // Now check if identity is an email address or username and setup filters
+        if ($identity && filter_var($identity, FILTER_VALIDATE_EMAIL)) {
+            $filter = array('Email' => $identity);
         } else {
-            $member = Member::get()->filter($filter)->first();
-
-            if($member) {
-                $result = $member->checkPassword($RAW_data['Password']);
-            } else {
-                $result = new ValidationResult(false, _t('Member.ERRORWRONGCRED'));
-            }
-
-            if($member && !$result->valid()) {
-                $member->registerFailedLogin();
-                $member = false;
-            }
+            $filter = array('Username' => $identity);
         }
 
-        // Optionally record every login attempt as a {@link LoginAttempt} object
-        /**
-         * TODO We could handle this with an extension
-         */
-        if(Security::login_recording()) {
-            $attempt = new LoginAttempt();
-            if($member) {
-                // successful login (member is existing with matching password)
-                $attempt->MemberID = $member->ID;
-                $attempt->Status = 'Success';
+		// Attempt to identify user
+		if(!$member && $filter) {
+			// Find user by email
+			$member = Member::get()
+				->filter($filter)
+				->first();
+		}
 
-                // Audit logging hook
-                $member->extend('authenticated');
-            } else {
-                // failed login - we're trying to see if a user exists with this email (disregarding wrong passwords)
-                $existingMember = DataObject::get_one(
-                    "Member",
-                    "\"" . Member::get_unique_identifier_field() . "\" = '$SQL_user'"
-                );
-                if($existingMember) {
-                    $attempt->MemberID = $existingMember->ID;
+		// Validate against member if possible
+		if($member && !$id_default_admin) {
+			$result = $member->checkPassword($data['Password']);
+			$success = $result->valid();
+		} else {
+			$result = new ValidationResult(false, _t('Member.ERRORWRONGCRED'));
+		}
 
-                    // Audit logging hook
-                    $existingMember->extend('authenticationFailed');
-                } else {
+		// Emit failure to member and form (if available)
+		if(!$success) {
+			if($member) $member->registerFailedLogin();
+			if($form) $form->sessionMessage($result->message(), 'bad');
+		} else {
+			if($member) $member->registerSuccessfulLogin();
+		}
 
-                    // Audit logging hook
-                    singleton('Member')->extend('authenticationFailedUnknownUser', $RAW_data);
-                }
-                $attempt->Status = 'Failure';
-            }
-            if(is_array($RAW_data['Email'])) {
-                user_error("Bad email passed to MemberAuthenticator::authenticate(): $RAW_data[Email]", E_USER_WARNING);
-                return false;
-            }
+		return $member;
+	}
 
-            $attempt->Email = $RAW_data['Email'];
-            $attempt->IP = Controller::curr()->getRequest()->getIP();
-            $attempt->write();
-        }
+    /**
+	 * Log login attempt
+	 * TODO We could handle this with an extension
+	 *
+	 * @param array $data
+	 * @param Member $member
+	 * @param bool $success
+	 */
+	protected static function record_login_attempt($data, $member, $success) {
+		if(!Security::config()->login_recording) return;
 
-        // Legacy migration to precision-safe password hashes.
-        // A login-event with cleartext passwords is the only time
-        // when we can rehash passwords to a different hashing algorithm,
-        // bulk-migration doesn't work due to the nature of hashing.
-        // See PasswordEncryptor_LegacyPHPHash class.
-        if(
-            $member // only migrate after successful login
-            && self::$migrate_legacy_hashes
-            && array_key_exists($member->PasswordEncryption, self::$migrate_legacy_hashes)
-        ) {
-            $member->Password = $RAW_data['Password'];
-            $member->PasswordEncryption = self::$migrate_legacy_hashes[$member->PasswordEncryption];
-            $member->write();
-        }
+		// Check email is valid
+		$identity = isset($data['Identity']) ? $data['Identity'] : null;
 
-        if($member) {
-            Session::clear('BackURL');
-        } else {
-            if($form && $result) $form->sessionMessage(_t('Member.ERRORWRONGCRED'), 'bad');
-        }
+		if(is_array($identity)) {
+			throw new InvalidArgumentException("Bad email passed to MemberAuthenticator::authenticate(): $identity");
+		}
 
-        return $member;
-    }
+		$attempt = new LoginAttempt();
+		if($success) {
+			// successful login (member is existing with matching password)
+			$attempt->MemberID = $member->ID;
+			$attempt->Status = 'Success';
+
+			// Audit logging hook
+			$member->extend('authenticated');
+
+		} else {
+			// Failed login - we're trying to see if a user exists with this email (disregarding wrong passwords)
+			$attempt->Status = 'Failure';
+			if($member) {
+				// Audit logging hook
+				$attempt->MemberID = $member->ID;
+				$member->extend('authenticationFailed');
+
+			} else {
+				// Audit logging hook
+				singleton('Member')->extend('authenticationFailedUnknownUser', $data);
+			}
+		}
+
+		$attempt->Email = $identity;
+		$attempt->IP = Controller::curr()->getRequest()->getIP();
+		$attempt->write();
+	}
+
 
     /**
      * Tell this Authenticator to use your custom login form
