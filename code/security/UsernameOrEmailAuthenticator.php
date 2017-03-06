@@ -115,15 +115,26 @@ class UsernameOrEmailAuthenticator extends Authenticator {
         return $member;
     }
 
-    // Tell this Authenticator to use your custom login form
-    // The 3rd parameter MUST be 'LoginForm' to fit within the authentication framework
+    /**
+     * Tell this Authenticator to use your custom login form
+     * The 3rd parameter MUST be 'LoginForm' to fit within the authentication
+     * framework
+     *
+     * @param $controller the controller to add this form to
+     * @return UsernameOrEmailLoginForm
+     */
     public static function get_login_form(Controller $controller) {
         return UsernameOrEmailLoginForm::create($controller, "LoginForm");
     }
 
-    // give a title to the Authenticator tab (when multiple Authenticators are registered)
+    /**
+     * Give a title to the Authenticator tab (when multiple Authenticators are
+     * registered)
+     *
+     * @return String
+     */
     public static function get_name() {
-        return "Username or Email and Password";
+        return _t("AuthUsernameOrEmail.Title", "Username or Email and Password");
     }
 
 }
