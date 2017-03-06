@@ -1,23 +1,34 @@
-Silverstripe Auth Username
-==================================
+# Silverstripe Auth Username Module
 
-Adds username authentication to a silverstripe install as well as a login via
-username / email &amp; password widget
+Adds ability to log users into a Silverstripe installation via either a username
+Username OR Email address.
+
+Also provides a custom widget that adds a Username or Email login form to the
+sidebar.
 
 ## Maintainer Contact
 
- * Morven Lewis-Everley (morven at i-lateral dot com)
+ * Mo <morven@ilateral.co.uk>
 
 ## Requirements
 
  * Silverstripe Framework 3.1.x
- * Silverstripe CMS 3.1.x
 
 ## Installation
-Install this module either by downloading and adding to:
 
-[silverstripe-root]/auth-username
+The preffered method of installation is Composer (see the
+[official docs](https://docs.silverstripe.org/en/3/developer_guides/extending/modules/#installation))
 
-Then run: http://yoursiteurl.com/dev/build/
+To install via composer run the following:
 
-Or alternativly add to your project's composer.json
+    composer require i-lateral/silverstripe-auth-username:1.*
+
+NOTE: The above will install the latest version of 1.*
+
+## Usage
+
+Once installed, make sure you run a dev/build to add the Username field to
+a Member.
+
+Now when you go to login you will get a Username or Email form (insted of the
+default email form).
