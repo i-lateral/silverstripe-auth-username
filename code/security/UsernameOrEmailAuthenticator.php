@@ -131,7 +131,6 @@ class UsernameOrEmailAuthenticator extends MemberAuthenticator
 				// Audit logging hook
 				$attempt->MemberID = $member->ID;
 				$member->extend('authenticationFailed');
-
 			} else {
 				// Audit logging hook
 				singleton('Member')->extend('authenticationFailedUnknownUser', $data);
