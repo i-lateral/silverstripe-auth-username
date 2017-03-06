@@ -47,6 +47,16 @@ class UsernameMemberExtension extends DataExtension {
 	}
 
 	public function updateCMSFields(FieldList $fields) {
-		$fields->insertBefore($fields->dataFieldByName("Username")->setTitle(_t(' UsernameMember.TITLE', "Užívateľské meno"))->setDescription(_t(' UsernameMember.DESCRIPTION', "Slúži na prihlasovanie.")), "FirstName");
+		$username_field = $fields->dataFieldByName("Username");
+
+		if ($username_field) {
+			$username_field
+				->setTitle(_t('AuthUsernameOrEmail.Title', "Username"))
+				->setDescription(_t("AuthUsernameOrEmail.Description", "This is used for logging in"));
+			$fields->insertBefore(
+				$username_field,
+				"FirstName"
+			);
+		}
 	}
 }
