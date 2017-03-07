@@ -1,5 +1,7 @@
 # Silverstripe Auth Username Module
 
+![Travis Support](https://travis-ci.org/i-lateral/silverstripe-auth-username.svg?branch=master)
+
 Adds ability to log users into a Silverstripe installation via either a username
 Username OR Email address.
 
