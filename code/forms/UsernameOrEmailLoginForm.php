@@ -86,18 +86,27 @@ class UsernameOrEmailLoginForm extends MemberLoginForm
      */
     public function performLogin($data)
     {
-        $member = false;
+        $member = null;
 
         try {
-            $member = UsernameOrEmailAuthenticator::authenticate($data, $this);
-            $member->LogIn(isset($data['Remember']));
+            $member = call_user_func_array(array(
+                $this->authenticator_class, 'authenticate'),
+                array($data, $this)
+            );
+
+            if($member) {
+                $member->LogIn(isset($data['Remember']));
+                return $member;
+            } else {
+                $this->extend('authenticationFailed', $data);
+            }
         } catch (ValidationException $e) {
             error_log($e->getMessage());
-            $this->sessionMessage(_t('AuthUsernameOrEmail.LoginError', 'There was an error logging in'), "bad");
         } catch (Exception $e) {
             error_log($e->getMessage());
-            $this->sessionMessage(_t('AuthUsernameOrEmail.LoginError', 'There was an error logging in'), "bad");
         }
+
+        $this->sessionMessage(_t('AuthUsernameOrEmail.LoginError', 'There was an error logging in'), "bad");
 
         return $member;
     }
