@@ -77,6 +77,10 @@ class UsernameOrEmailLoginForm extends MemberLoginForm
 
         $this
             ->setAttribute("action",$form_action_url);
+			
+        $this
+            ->setValidator(RequiredFields::create('Identity', 'Password'));
+
     }
 
     /**
