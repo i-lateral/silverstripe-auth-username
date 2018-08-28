@@ -27,8 +27,8 @@
     },
     "autoload": {
         "psr-4": {
-            "ilateral\\SilverStripe\\AuthUsername": "src/",
-            "ilateral\\SilverStripe\\AuthUsername\\Tests": "tests/"
+            "ilateral\\SilverStripe\\AuthUsername\\": "src/",
+            "ilateral\\SilverStripe\\AuthUsername\\Tests\\": "tests/"
         }
     }
 }
