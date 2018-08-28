@@ -2,58 +2,32 @@
 
 namespace ilateral\SilverStripe\AuthUsername\Security;
 
-use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\TextField;
-use SilverStripe\Forms\FormAction;
-use SilverStripe\Forms\HiddenField;
 use SilverStripe\Security\Security;
-use SilverStripe\Control\Controller;
-use SilverStripe\Forms\LiteralField;
-use SilverStripe\Forms\CheckboxField;
-use SilverStripe\Forms\PasswordField;
-use SilverStripe\Forms\RequiredFields;
-use SilverStripe\ORM\ValidationException;
+use SilverStripe\Security\MemberAuthenticator\MemberLoginForm;
+use ilateral\SilverStripe\AuthUsername\Security\UsernameOrEmailAuthenticator;
 
+/**
+ * Custom login form that swaps email field for ident
+ * 
+ */
 class UsernameOrEmailLoginForm extends MemberLoginForm
 {
 
-    protected $authenticator_class = 'UsernameOrEmailAuthenticator';
+    protected $authenticator_class = UsernameOrEmailAuthenticator::class;
 
-    public function __construct($controller, $name, $fields = null, $actions = null, $checkCurrentUser = true)
+    /**
+     * Overwrite default fields to swap email for identity
+     * 
+     * @return FieldList
+     */
+    protected function getFormFields()
     {
-        $form_action_url = Controller::join_links(
-            BASE_URL,
-            "Security",
-            $name
-        );
+        $fields = parent::getFormFields();
 
-        $lost_password_url = Controller::join_links(
-            BASE_URL,
-            "Security",
-            "lostpassword"
-        );
-
-        if (isset($_REQUEST['BackURL'])) {
-            $backURL = $_REQUEST['BackURL'];
-        } else {
-            $backURL = Session::get('BackURL');
-        }
-
-        $fields = FieldList::create(
-            HiddenField::create(
-                "AuthenticationMethod",
-                null,
-                $this->authenticator_class,
-                $this
-            ),
-            $identity_field = TextField::create(
-                'Identity',
-                _t('AuthUsernameOrEmail.UsernameOrEmail', 'Username or Email')
-            ),
-            PasswordField::create(
-                "Password",
-                _t('Member.PASSWORD', 'Password')
-            )
+        $identity_field = TextField::create(
+            'Identity',
+            _t('AuthUsernameOrEmail.UsernameOrEmail', 'Username or Email')
         );
 
         if (!Security::config()->remember_username) {
@@ -62,72 +36,8 @@ class UsernameOrEmailLoginForm extends MemberLoginForm
             $identity_field->setAttribute('autocomplete', 'off');
         }
 
-        if (Security::config()->autologin_enabled) {
-            $fields->push(
-                CheckboxField::create(
-                    "Remember",
-                    _t('Member.REMEMBERME', "Remember me?")
-                )
-            );
-        }
+        $fields->replaceField("Email", $identity_field);
 
-        if (isset($backURL)) {
-            $fields->push(HiddenField::create('BackURL', 'BackURL', $backURL));
-        }
-
-        $actions = new FieldList(
-            FormAction::create('dologin', _t('Member.BUTTONLOGIN', "Log in")),
-            LiteralField::create(
-                'forgotPassword',
-                '<p id="ForgotPassword"><a href="' . $lost_password_url . '">'
-                . _t('Member.BUTTONLOSTPASSWORD', "I've lost my password") . '</a></p>'
-            )
-        );
-
-        // Reduce attack surface by enforcing POST requests
-        $this->setFormMethod('POST', true);
-
-        // LoginForm does its magic
-        parent::__construct($controller, $name, $fields, $actions);
-
-        $this
-            ->setAttribute("action", $form_action_url);
-            
-        $this
-            ->setValidator(RequiredFields::create('Identity', 'Password'));
-
-    }
-
-    /**
-     * Attempt login via our own Authenticator
-     *
-     * @return Member
-     */
-    public function performLogin($data)
-    {
-        $member = null;
-
-        try {
-            $member = call_user_func_array(
-                array(
-                $this->authenticator_class, 'authenticate'),
-                array($data, $this)
-            );
-
-            if ($member) {
-                $member->LogIn(isset($data['Remember']));
-                return $member;
-            } else {
-                $this->extend('authenticationFailed', $data);
-            }
-        } catch (ValidationException $e) {
-            error_log($e->getMessage());
-        } catch (Exception $e) {
-            error_log($e->getMessage());
-        }
-
-        $this->sessionMessage(_t('AuthUsernameOrEmail.LoginError', 'There was an error logging in'), "bad");
-
-        return $member;
+        return $fields;
     }
 }
