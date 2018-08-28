@@ -1,7 +1,7 @@
 {
   "name": "i-lateral/silverstripe-auth-username",
   "description": "Adds username authentication and username or email login to a silverstripe install",
-  "type": "silverstripe-module",
+  "type": "silverstripe-vendormodule",
     "homepage": "https://github.com/i-lateral/silverstripe-auth-username",
     "keywords": [
         "silverstripe",
@@ -23,9 +23,12 @@
         "issues": "https://github.com/i-lateral/silverstripe-auth-username/issues"
     },
     "require": {
-        "silverstripe/framework": "~3.1"
+        "silverstripe/framework": "~4.0"
     },
-    "extra": {
-        "installer-name": "auth-username"
+    "autoload": {
+        "psr-4": {
+            "ilateral\\SilverStripe\\AuthUsername": "src/",
+            "ilateral\\SilverStripe\\AuthUsername\\Tests": "tests/"
+        }
     }
 }
