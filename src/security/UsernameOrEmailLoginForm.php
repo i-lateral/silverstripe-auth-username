@@ -1,5 +1,19 @@
 <?php
 
+namespace ilateral\SilverStripe\AuthUsername\Security;
+
+use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\TextField;
+use SilverStripe\Forms\FormAction;
+use SilverStripe\Forms\HiddenField;
+use SilverStripe\Security\Security;
+use SilverStripe\Control\Controller;
+use SilverStripe\Forms\LiteralField;
+use SilverStripe\Forms\CheckboxField;
+use SilverStripe\Forms\PasswordField;
+use SilverStripe\Forms\RequiredFields;
+use SilverStripe\ORM\ValidationException;
+
 class UsernameOrEmailLoginForm extends MemberLoginForm
 {
 
@@ -25,7 +39,7 @@ class UsernameOrEmailLoginForm extends MemberLoginForm
             $backURL = Session::get('BackURL');
         }
 
-        $fields = new FieldList(
+        $fields = FieldList::create(
             HiddenField::create(
                 "AuthenticationMethod",
                 null,
@@ -42,23 +56,24 @@ class UsernameOrEmailLoginForm extends MemberLoginForm
             )
         );
 
-        if(!Security::config()->remember_username) {
+        if (!Security::config()->remember_username) {
             // Some browsers won't respect this attribute unless it's added to the form
             $this->setAttribute('autocomplete', 'off');
             $identity_field->setAttribute('autocomplete', 'off');
         }
 
-        if(Security::config()->autologin_enabled) {
-            $fields->push(new CheckboxField(
-                "Remember",
-                _t('Member.REMEMBERME', "Remember me?")
-            ));
+        if (Security::config()->autologin_enabled) {
+            $fields->push(
+                CheckboxField::create(
+                    "Remember",
+                    _t('Member.REMEMBERME', "Remember me?")
+                )
+            );
         }
 
-
-		if (isset($backURL)) {
-			$fields->push(new HiddenField('BackURL', 'BackURL', $backURL));
-		}
+        if (isset($backURL)) {
+            $fields->push(HiddenField::create('BackURL', 'BackURL', $backURL));
+        }
 
         $actions = new FieldList(
             FormAction::create('dologin', _t('Member.BUTTONLOGIN', "Log in")),
@@ -69,15 +84,15 @@ class UsernameOrEmailLoginForm extends MemberLoginForm
             )
         );
 
-		// Reduce attack surface by enforcing POST requests
-		$this->setFormMethod('POST', true);
+        // Reduce attack surface by enforcing POST requests
+        $this->setFormMethod('POST', true);
 
         // LoginForm does its magic
         parent::__construct($controller, $name, $fields, $actions);
 
         $this
-            ->setAttribute("action",$form_action_url);
-			
+            ->setAttribute("action", $form_action_url);
+            
         $this
             ->setValidator(RequiredFields::create('Identity', 'Password'));
 
@@ -93,12 +108,13 @@ class UsernameOrEmailLoginForm extends MemberLoginForm
         $member = null;
 
         try {
-            $member = call_user_func_array(array(
+            $member = call_user_func_array(
+                array(
                 $this->authenticator_class, 'authenticate'),
                 array($data, $this)
             );
 
-            if($member) {
+            if ($member) {
                 $member->LogIn(isset($data['Remember']));
                 return $member;
             } else {

@@ -1,3 +1,6 @@
-Member:
+---
+Name: authusernameconfig
+---
+SilverStripe\Security\Member:
   extensions:
-    - UsernameMemberExtension
+    - ilateral\SilverStripe\AuthUsername\Extensions\UsernameMemberExtension
