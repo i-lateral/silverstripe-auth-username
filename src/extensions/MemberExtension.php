@@ -2,9 +2,12 @@
 
 namespace ilateral\SilverStripe\AuthUsername\Extensions;
 
+use SilverStripe\Core\Convert;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\ORM\DataExtension;
+use SilverStripe\ORM\ValidationResult;
+use SilverStripe\ORM\ValidationException;
 
 /**
  * Add additional variables to Member
@@ -13,55 +16,13 @@ use SilverStripe\ORM\DataExtension;
  */
 class MemberExtension extends DataExtension
 {
-    public static $db = [
+    private static $db = [
         "Username" => "Varchar"
     ];
     
-    public static $indexes = [
-        "Username" => ['type'=>'unique', 'value'=>'Username']
+    private static $indexes = [
+        "Username" => true
     ];
-
-    /**
-     * When a user is created, check if another user exists with that username
-     *
-     */
-    public function onBeforeWrite()
-    {
-        if ($username = $this->owner->Username) {
-            $identifierField = 'Username';
-            $id = $this->owner->ID;
-
-            $idClause = ($id) ? sprintf(" AND \"Member\".\"ID\" <> %d", (int)$id) : '';
-            $existingRecord = DataObject::get_one(
-                'Member', 
-                sprintf(
-                    "\"%s\" = '%s' %s",
-                    $identifierField,
-                    Convert::raw2sql($username),
-                    $idClause
-                )
-            );
-
-            if ($existingRecord) {
-                throw new ValidationException(
-                    new ValidationResult(
-                        false, _t(
-                            'Member.ValidationIdentifierFailed', 
-                            'Can\'t overwrite existing member #{id} with identical identifier ({name} = {value})', 
-                            'Values in brackets show "fieldname = value", usually denoting an existing username',
-                            [
-                                'id' => $existingRecord->ID,
-                                'name' => $identifierField,
-                                'value' => $username
-                            ]
-                        )
-                    )
-                );
-            }
-        }
-
-        parent::onBeforeWrite();
-    }
 
     /**
      * Update username field on a member
