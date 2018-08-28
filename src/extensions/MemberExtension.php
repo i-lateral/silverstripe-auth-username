@@ -3,6 +3,7 @@
 namespace ilateral\SilverStripe\AuthUsername\Extensions;
 
 use SilverStripe\ORM\DataObject;
+use SilverStripe\Forms\FieldList;
 use SilverStripe\ORM\DataExtension;
 
 /**
@@ -10,7 +11,7 @@ use SilverStripe\ORM\DataExtension;
  *
  * @author morven
  */
-class UsernameMemberExtension extends DataExtension
+class MemberExtension extends DataExtension
 {
     public static $db = [
         "Username" => "Varchar"
