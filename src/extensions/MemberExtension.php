@@ -24,6 +24,13 @@ class MemberExtension extends DataExtension
         "Username" => true
     ];
 
+    private static $summary_fields = array(
+        'FirstName',
+        'Surname',
+        'Username',
+        'Email',
+    );
+
     /**
      * Update username field on a member
      * 
