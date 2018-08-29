@@ -13,7 +13,6 @@ use SilverStripe\Security\MemberAuthenticator\MemberAuthenticator;
 use ilateral\SilverStripe\AuthUsername\Security\UsernameOrEmailLoginForm;
 use ilateral\SilverStripe\AuthUsername\Security\UsernameOrEmailLoginHandler;
 
-
 /**
  * Overwrite MemberAuthenticator and add support for a usernajme as well as
  * an email address for authentication
@@ -179,9 +178,8 @@ class UsernameOrEmailAuthenticator extends MemberAuthenticator
      *
      * @return string
      */
-    public static function get_name() 
+    public static function get_name()
     {
         return _t("AuthUsernameOrEmail.Title", "Username or Email and Password");
     }
-
 }

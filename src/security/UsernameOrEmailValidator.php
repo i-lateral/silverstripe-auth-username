@@ -6,7 +6,6 @@ use SilverStripe\Security\Member;
 use SilverStripe\Security\Member_Validator;
 use SilverStripe\Forms\GridField\GridFieldDetailForm_ItemRequest;
 
-
 class UsernameOrEmailValidator extends Member_Validator
 {
     /**
@@ -26,7 +25,6 @@ class UsernameOrEmailValidator extends Member_Validator
 
         // If the primary ident was valid, check the alt
         if ($valid) {
-
             // Only validate identifier field if it's actually set.
             $id = isset($data['ID']) ? (int)$data['ID'] : 0;
             if (isset($data[$ident])) {

@@ -17,7 +17,7 @@ class UsernameOrEmailLoginForm extends MemberLoginForm
 
     /**
      * Overwrite default fields to swap email for identity
-     * 
+     *
      * @return FieldList
      */
     protected function getFormFields()

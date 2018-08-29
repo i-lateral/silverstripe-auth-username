@@ -14,8 +14,6 @@ use SilverStripe\Security\DefaultAdminService;
 use SilverStripe\Security\MemberAuthenticator\MemberLoginForm;
 use ilateral\SilverStripe\AuthUsername\Security\UsernameOrEmailAuthenticator;
 
-
-
 /**
  * Add some basic tests to the username authenticator (these expand upon
  * the default MemberAuthenticator tests) where needed.
@@ -26,15 +24,15 @@ use ilateral\SilverStripe\AuthUsername\Security\UsernameOrEmailAuthenticator;
 class UsernameAuthenticatorTest extends SapphireTest
 {
 
-	protected $usesDatabase = true;
+    protected $usesDatabase = true;
 
-	protected $defaultUsername = null;
+    protected $defaultUsername = null;
 
-	protected $defaultPassword = null;
+    protected $defaultPassword = null;
 
-	protected function setUp()
+    protected function setUp()
     {
-		parent::setUp();
+        parent::setUp();
 
         if (DefaultAdminService::hasDefaultAdmin()) {
             $this->defaultUsername = DefaultAdminService::getDefaultAdminUsername();
@@ -43,7 +41,7 @@ class UsernameAuthenticatorTest extends SapphireTest
         } else {
             $this->defaultUsername = null;
             $this->defaultPassword = null;
-		}
+        }
 
         DefaultAdminService::setDefaultAdmin('admin', 'password');
     }
@@ -68,7 +66,7 @@ class UsernameAuthenticatorTest extends SapphireTest
     public function testGenerateLoginForm()
     {
         $authenticator = new UsernameOrEmailAuthenticator();
-		$controller = new Security();
+        $controller = new Security();
 
         // Create basic login form
         $frontendResponse = $authenticator
@@ -77,12 +75,12 @@ class UsernameAuthenticatorTest extends SapphireTest
         $this->assertTrue(is_array($frontendResponse));
         $this->assertTrue(isset($frontendResponse['Form']));
         $this->assertTrue($frontendResponse['Form'] instanceof MemberLoginForm);
-	}
+    }
 
 
     public function testDefaultAdmin()
     {
-		$authenticator = new UsernameOrEmailAuthenticator();
+        $authenticator = new UsernameOrEmailAuthenticator();
 
         // Test correct login
         /** @var ValidationResult $message */
@@ -112,9 +110,9 @@ class UsernameAuthenticatorTest extends SapphireTest
             'The provided details don\'t seem to be correct. Please try again.',
             $messages[0]['message']
         );
-	}
-	
-	public function testDefaultAdminLockOut()
+    }
+    
+    public function testDefaultAdminLockOut()
     {
         $authenticator = new UsernameOrEmailAuthenticator();
         Config::modify()->set(Member::class, 'lock_out_after_incorrect_logins', 1);
@@ -132,9 +130,9 @@ class UsernameAuthenticatorTest extends SapphireTest
         $this->assertNotNull($defaultAdmin);
         $this->assertFalse($defaultAdmin->canLogin());
         $this->assertEquals('2016-04-18 00:10:00', $defaultAdmin->LockedOutUntil);
-	}
+    }
 
-	public function testNonExistantMemberGetsLoginAttemptRecorded()
+    public function testNonExistantMemberGetsLoginAttemptRecorded()
     {
         Member::config()
             ->set('lock_out_after_incorrect_logins', 1)
@@ -155,13 +153,13 @@ class UsernameAuthenticatorTest extends SapphireTest
         $this->assertFalse($result->isValid());
         $this->assertNull($member);
         $this->assertCount(1, LoginAttempt::get());
-		$attempt = LoginAttempt::get()->first();
+        $attempt = LoginAttempt::get()->first();
         $this->assertEmpty($attempt->Email); // Doesn't store potentially sensitive data
-		$this->assertEquals(sha1($email), $attempt->EmailHashed);
+        $this->assertEquals(sha1($email), $attempt->EmailHashed);
         $this->assertEquals(LoginAttempt::FAILURE, $attempt->Status);
     }
 
-	public function testNonExistantMemberGetsLockedOut()
+    public function testNonExistantMemberGetsLockedOut()
     {
         Member::config()
             ->set('lock_out_after_incorrect_logins', 1)

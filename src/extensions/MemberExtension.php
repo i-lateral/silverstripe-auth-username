@@ -33,12 +33,12 @@ class MemberExtension extends DataExtension
 
     /**
      * Update username field on a member
-     * 
+     *
      * @param FieldList $fields List of fields from CMS
-     * 
+     *
      * @return null
      */
-    public function updateCMSFields(FieldList $fields) 
+    public function updateCMSFields(FieldList $fields)
     {
         $username_field = $fields->dataFieldByName("Username");
 
