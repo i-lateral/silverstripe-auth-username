@@ -126,10 +126,7 @@ class UsernameOrEmailAuthenticator extends MemberAuthenticator
         }
 
         // Check email is valid
-        /**
- * @skipUpgrade 
-*/
-        $ident = isset($data['Ident']) ? $data['Ident'] : null;
+        $ident = isset($data[self::IDENTITY]) ? $data[self::IDENTITY] : null;
         if (is_array($ident)) {
             throw new InvalidArgumentException("Bad email passed to MemberAuthenticator::authenticate(): $email");
         }
@@ -156,7 +153,7 @@ class UsernameOrEmailAuthenticator extends MemberAuthenticator
             }
         }
 
-        if ($member && $member->Email) {
+        if ($member && isset($member->Email)) {
             $email = $member->Email;
         } else {
             $email = $ident;
