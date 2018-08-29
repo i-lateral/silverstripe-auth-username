@@ -20,6 +20,7 @@ use ilateral\SilverStripe\AuthUsername\Security\UsernameOrEmailLoginHandler;
  */
 class UsernameOrEmailAuthenticator extends MemberAuthenticator
 {
+    const IDENTITY = "Identity";
 
     /**
      * Overwrite standard authentication in order to also look for user ID
@@ -34,7 +35,7 @@ class UsernameOrEmailAuthenticator extends MemberAuthenticator
      */
     protected function authenticateMember($data, ValidationResult &$result = null, Member $member = null)
     {
-        $ident = !empty($data['Identity']) ? $data['Identity'] : null;
+        $ident = !empty($data[self::IDENTITY]) ? $data[self::IDENTITY] : null;
         $result = $result ?: ValidationResult::create();
         $field = Member::config()->get('unique_identifier_field');
 

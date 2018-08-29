@@ -26,7 +26,7 @@ class UsernameOrEmailLoginForm extends MemberLoginForm
         $fields = parent::getFormFields();
 
         $identity_field = TextField::create(
-            'Identity',
+            UsernameOrEmailAuthenticator::IDENTITY,
             _t('AuthUsernameOrEmail.UsernameOrEmail', 'Username or Email')
         );
 
