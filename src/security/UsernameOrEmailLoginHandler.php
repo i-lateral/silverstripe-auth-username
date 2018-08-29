@@ -25,7 +25,7 @@ class UsernameOrEmailLoginHandler extends LoginHandler
      * Return the UsernameOrEmailLoginForm form
      *
      * @skipUpgrade
-     * @return MemberLoginForm
+     * @return      MemberLoginForm
      */
     public function loginForm()
     {

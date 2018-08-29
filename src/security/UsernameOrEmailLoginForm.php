@@ -9,7 +9,6 @@ use ilateral\SilverStripe\AuthUsername\Security\UsernameOrEmailAuthenticator;
 
 /**
  * Custom login form that swaps email field for ident
- * 
  */
 class UsernameOrEmailLoginForm extends MemberLoginForm
 {

@@ -26,10 +26,10 @@ class UsernameOrEmailAuthenticator extends MemberAuthenticator
      * Overwrite standard authentication in order to also look for user ID
      * (as well as email)
      *
-     * @param array $data
+     * @param array       $data
      * @param HTTPRequest $request
-     * @param Member $member
-     * @param boolean $success
+     * @param Member      $member
+     * @param boolean     $success
      *
      * @return Member Found member, regardless of successful login
      */
@@ -97,10 +97,12 @@ class UsernameOrEmailAuthenticator extends MemberAuthenticator
             $member->registerSuccessfulLogin();
         } else {
             // A non-existing member occurred. This will make the result "valid" so let's invalidate
-            $result->addError(_t(
-                'SilverStripe\\Security\\Member.ERRORWRONGCRED',
-                "The provided details don't seem to be correct. Please try again."
-            ));
+            $result->addError(
+                _t(
+                    'SilverStripe\\Security\\Member.ERRORWRONGCRED',
+                    "The provided details don't seem to be correct. Please try again."
+                )
+            );
             return null;
         }
 
@@ -110,10 +112,10 @@ class UsernameOrEmailAuthenticator extends MemberAuthenticator
     /**
      * Log login attempt, again largly copied from MemberAuthenticator
      *
-     * @param array $data
+     * @param array       $data
      * @param HTTPRequest $request
-     * @param Member $member
-     * @param boolean $success
+     * @param Member      $member
+     * @param boolean     $success
      */
     protected function recordLoginAttempt($data, HTTPRequest $request, $member, $success)
     {
@@ -124,7 +126,9 @@ class UsernameOrEmailAuthenticator extends MemberAuthenticator
         }
 
         // Check email is valid
-        /** @skipUpgrade */
+        /**
+ * @skipUpgrade 
+*/
         $ident = isset($data['Ident']) ? $data['Ident'] : null;
         if (is_array($ident)) {
             throw new InvalidArgumentException("Bad email passed to MemberAuthenticator::authenticate(): $email");

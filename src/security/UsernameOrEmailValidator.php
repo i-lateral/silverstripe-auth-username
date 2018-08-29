@@ -15,7 +15,7 @@ class UsernameOrEmailValidator extends Member_Validator
      * Check if a member with that email doesn't already exist, or if it does
      * that it is this member.
      *
-     * @param array $data Submitted data
+     * @param  array $data Submitted data
      * @return bool Returns TRUE if the submitted data is valid, otherwise
      *              FALSE.
      */
