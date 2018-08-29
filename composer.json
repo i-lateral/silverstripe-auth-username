@@ -25,6 +25,9 @@
     "require": {
         "silverstripe/framework": "~4.0"
     },
+    "scripts": {
+        "lint": "phpcs -s src/ tests/"
+    },
     "autoload": {
         "psr-4": {
             "ilateral\\SilverStripe\\AuthUsername\\": "src/",
