@@ -1,5 +1,7 @@
 ---
 Name: authusernameconfig
+After:
+  - '#coresecurity'
 ---
 SilverStripe\Security\Member:
   alt_identifier_field: "Username"
