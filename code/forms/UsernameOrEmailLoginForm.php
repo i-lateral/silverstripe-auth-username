@@ -7,73 +7,19 @@ class UsernameOrEmailLoginForm extends MemberLoginForm
 
     public function __construct($controller, $name, $fields = null, $actions = null, $checkCurrentUser = true)
     {
-        $form_action_url = Controller::join_links(
-            BASE_URL,
-            "Security",
-            $name
-        );
-
-        $lost_password_url = Controller::join_links(
-            BASE_URL,
-            "Security",
-            "lostpassword"
-        );
-
-        if (isset($_REQUEST['BackURL'])) {
-            $backURL = $_REQUEST['BackURL'];
-        } else {
-            $backURL = Session::get('BackURL');
-        }
-
-        $fields = new FieldList(
-            HiddenField::create(
-                "AuthenticationMethod",
-                null,
-                $this->authenticator_class,
-                $this
-            ),
-            $identity_field = TextField::create(
-                'Identity',
-                _t('AuthUsernameOrEmail.UsernameOrEmail', 'Username or Email')
-            ),
-            PasswordField::create(
-                "Password",
-                _t('Member.PASSWORD', 'Password')
-            )
-        );
-
-        if(!Security::config()->remember_username) {
-            // Some browsers won't respect this attribute unless it's added to the form
-            $this->setAttribute('autocomplete', 'off');
-            $identity_field->setAttribute('autocomplete', 'off');
-        }
-
-        if(Security::config()->autologin_enabled) {
-            $fields->push(new CheckboxField(
-                "Remember",
-                _t('Member.REMEMBERME', "Remember me?")
-            ));
-        }
-
-
-		if (isset($backURL)) {
-			$fields->push(new HiddenField('BackURL', 'BackURL', $backURL));
-		}
-
-        $actions = new FieldList(
-            FormAction::create('dologin', _t('Member.BUTTONLOGIN', "Log in")),
-            LiteralField::create(
-                'forgotPassword',
-                '<p id="ForgotPassword"><a href="' . $lost_password_url . '">'
-                . _t('Member.BUTTONLOSTPASSWORD', "I've lost my password") . '</a></p>'
-            )
-        );
-
-		// Reduce attack surface by enforcing POST requests
-		$this->setFormMethod('POST', true);
-
-        // LoginForm does its magic
         parent::__construct($controller, $name, $fields, $actions);
+
+        $identity_field = TextField::create(
+            'Identity',
+            _t('AuthUsernameOrEmail.UsernameOrEmail', 'Username or Email'),
+            null,
+            null,
+            $this
+        );
+
+        $this->Fields()->replaceField("Email", $identity_field);
+
+        $this->setValidator(RequiredFields::create('Identity', 'Password'));
 
         // Focus on the identity input when the page is loaded
         $js = <<<JS
@@ -83,13 +29,6 @@ class UsernameOrEmailLoginForm extends MemberLoginForm
             })();
 JS;
         Requirements::customScript($js, 'UsernameOrEmailLoginFormFieldFocus');
-
-        $this
-            ->setAttribute("action",$form_action_url);
-			
-        $this
-            ->setValidator(RequiredFields::create('Identity', 'Password'));
-
     }
 
     /**
