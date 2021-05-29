@@ -36,8 +36,8 @@ class UsernameOrEmailAuthenticator extends MemberAuthenticator
 		}
 
 		// Otherwise, get identifier from posted value instead
-		if(!$member && !empty($data['Identity'])) {
-			$identity = $data['Identity'];
+		if(!$member && !empty($data['Email'])) {
+			$identity = $data['Email'];
 		}
 
 		// Check default login (see Security::setDefaultAdmin())
@@ -61,7 +61,7 @@ class UsernameOrEmailAuthenticator extends MemberAuthenticator
 
 		// Attempt to identify user
 		if(!$member && $filter) {
-			// Find user by email
+			// Find user by filter (Username or Email)
 			$member = Member::get()
 				->filter($filter)
 				->first();

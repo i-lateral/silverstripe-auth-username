@@ -9,22 +9,14 @@ class UsernameOrEmailLoginForm extends MemberLoginForm
     {
         parent::__construct($controller, $name, $fields, $actions);
 
-        $identity_field = TextField::create(
-            'Identity',
-            _t('AuthUsernameOrEmail.UsernameOrEmail', 'Username or Email'),
-            null,
-            null,
-            $this
-        );
+        if ($emailField = $this->Fields()->fieldByName("Email")) {
+            $emailField->setTitle(_t('AuthUsernameOrEmail.UsernameOrEmail', 'Username or Email'));
+        }
 
-        $this->Fields()->replaceField("Email", $identity_field);
-
-        $this->setValidator(RequiredFields::create('Identity', 'Password'));
-
-        // Focus on the identity input when the page is loaded
+        // Focus on the Email input when the page is loaded
         $js = <<<JS
             (function() {
-                var el = document.getElementById("UsernameOrEmailLoginForm_LoginForm_Identity");
+                var el = document.getElementById("UsernameOrEmailLoginForm_LoginForm_Email");
                 if(el && el.focus && (typeof jQuery == 'undefined' || jQuery(el).is(':visible'))) el.focus();
             })();
 JS;

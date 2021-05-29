@@ -93,7 +93,7 @@ class UsernameAuthenticatorTest extends SapphireTest
 
 		// Test correct login
 		$result = UsernameOrEmailAuthenticator::authenticate(array(
-			'Identity' => 'admin',
+			'Email' => 'admin',
 			'Password' => 'password'
 		), $form);
 		$this->assertNotEmpty($result);
@@ -103,7 +103,7 @@ class UsernameAuthenticatorTest extends SapphireTest
 		// Test incorrect login
 		$form->clearMessage();
 		$result = UsernameOrEmailAuthenticator::authenticate(array(
-			'Identity' => 'admin',
+			'Email' => 'admin',
 			'Password' => 'notmypassword'
 		), $form);
 		$this->assertEmpty($result);
@@ -121,7 +121,7 @@ class UsernameAuthenticatorTest extends SapphireTest
 
 		// Test correct login
 		UsernameOrEmailAuthenticator::authenticate(array(
-			'Identity' => 'admin',
+			'Email' => 'admin',
 			'Password' => 'wrongpassword'
 		), $form);
 
