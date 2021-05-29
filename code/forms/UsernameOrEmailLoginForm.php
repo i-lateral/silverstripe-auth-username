@@ -75,6 +75,15 @@ class UsernameOrEmailLoginForm extends MemberLoginForm
         // LoginForm does its magic
         parent::__construct($controller, $name, $fields, $actions);
 
+        // Focus on the identity input when the page is loaded
+        $js = <<<JS
+            (function() {
+                var el = document.getElementById("UsernameOrEmailLoginForm_LoginForm_Identity");
+                if(el && el.focus && (typeof jQuery == 'undefined' || jQuery(el).is(':visible'))) el.focus();
+            })();
+JS;
+        Requirements::customScript($js, 'UsernameOrEmailLoginFormFieldFocus');
+
         $this
             ->setAttribute("action",$form_action_url);
 			
