@@ -7,17 +7,6 @@
  */
 class UsernameOrEmailAuthenticator extends MemberAuthenticator
 {
-
-    /**
-     * @var Array Contains encryption algorithm identifiers.
-     *  If set, will migrate to new precision-safe password hashing
-     *  upon login. See http://open.silverstripe.org/ticket/3004.
-     */
-    public static $migrate_legacy_hashes = array(
-        'md5' => 'md5_v2.4',
-        'sha1' => 'sha1_v2.4'
-    );
-
     /**
 	 * Overwrite standard authentication in order to also look for user ID
      * (as well as email)
@@ -47,8 +36,8 @@ class UsernameOrEmailAuthenticator extends MemberAuthenticator
 		}
 
 		// Otherwise, get identifier from posted value instead
-		if(!$member && !empty($data['Identity'])) {
-			$identity = $data['Identity'];
+		if(!$member && !empty($data['Email'])) {
+			$identity = $data['Email'];
 		}
 
 		// Check default login (see Security::setDefaultAdmin())
@@ -72,7 +61,7 @@ class UsernameOrEmailAuthenticator extends MemberAuthenticator
 
 		// Attempt to identify user
 		if(!$member && $filter) {
-			// Find user by email
+			// Find user by filter (Username or Email)
 			$member = Member::get()
 				->filter($filter)
 				->first();
@@ -96,52 +85,6 @@ class UsernameOrEmailAuthenticator extends MemberAuthenticator
 
 		return $member;
 	}
-
-    /**
-	 * Log login attempt
-	 * TODO We could handle this with an extension
-	 *
-	 * @param array $data
-	 * @param Member $member
-	 * @param bool $success
-	 */
-	protected static function record_login_attempt($data, $member, $success) {
-		if(!Security::config()->login_recording) return;
-
-		// Check email is valid
-		$identity = isset($data['Identity']) ? $data['Identity'] : null;
-
-		if(is_array($identity)) {
-			throw new InvalidArgumentException("Bad email passed to MemberAuthenticator::authenticate(): $identity");
-		}
-
-		$attempt = new LoginAttempt();
-		if($success) {
-			// successful login (member is existing with matching password)
-			$attempt->MemberID = $member->ID;
-			$attempt->Status = 'Success';
-
-			// Audit logging hook
-			$member->extend('authenticated');
-
-		} else {
-			// Failed login - we're trying to see if a user exists with this email (disregarding wrong passwords)
-			$attempt->Status = 'Failure';
-			if($member) {
-				// Audit logging hook
-				$attempt->MemberID = $member->ID;
-				$member->extend('authenticationFailed');
-			} else {
-				// Audit logging hook
-				singleton('Member')->extend('authenticationFailedUnknownUser', $data);
-			}
-		}
-
-		$attempt->Email = $identity;
-		$attempt->IP = Controller::curr()->getRequest()->getIP();
-		$attempt->write();
-	}
-
 
     /**
      * Tell this Authenticator to use your custom login form

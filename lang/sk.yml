@@ -1,0 +1,6 @@
+sk:
+  AuthUsernameOrEmail:
+    Title: "Používateľské meno"
+    Description: "Slúži na prihlasovanie."
+    UsernameOrEmail: "Používateľské meno alebo e-mail"
+    LoginError: "Poskytnuté detaily vyzerajú byť nesprávne. Prosím skúste opäť."
