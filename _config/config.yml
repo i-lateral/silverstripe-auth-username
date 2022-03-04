@@ -1,14 +1,17 @@
 ---
 Name: authusernameconfig
+After:
+  - '#coresecurity'
 ---
 SilverStripe\Security\Member:
   alt_identifier_field: "Username"
   extensions:
     - ilateral\SilverStripe\AuthUsername\Extensions\MemberExtension
+
 SilverStripe\Core\Injector\Injector:
   SilverStripe\Security\Member_Validator:
     class: ilateral\SilverStripe\AuthUsername\Security\UsernameOrEmailValidator
   SilverStripe\Security\Security:
     properties:
       Authenticators:
-        default: %$ilateral\SilverStripe\AuthUsername\Security\UsernameOrEmailAuthenticator
+        default: '%$ilateral\SilverStripe\AuthUsername\Security\UsernameOrEmailAuthenticator'
