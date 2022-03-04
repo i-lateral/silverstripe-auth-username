@@ -14,7 +14,7 @@ sidebar.
 
 ## Requirements
 
- * Silverstripe Framework 3.1.x
+ * Silverstripe Framework 4.x
 
 ## Installation
 
@@ -23,9 +23,7 @@ The preffered method of installation is Composer (see the
 
 To install via composer run the following:
 
-    composer require i-lateral/silverstripe-auth-username:1.*
-
-NOTE: The above will install the latest version of 1.*
+    composer require i-lateral/silverstripe-auth-username
 
 ## Usage
 
