@@ -8,6 +8,10 @@ use SilverStripe\Forms\GridField\GridFieldDetailForm_ItemRequest;
 
 class UsernameOrEmailValidator extends Member_Validator
 {
+    protected $customRequired = [
+        'FirstName',
+    ];
+
     /**
      * Check if the submitted member data is valid (server-side)
      *
@@ -20,14 +24,33 @@ class UsernameOrEmailValidator extends Member_Validator
      */
     public function php($data)
     {
+        $ident = (string)Member::config()->unique_identifier_field;
+        $alt_ident = (string)Member::config()->alt_identifier_field;
+
+        // If neither email or username provided, return a validation error
+        if (empty($data[$ident]) && empty($data[$alt_ident])) {
+            $message = _t(
+                'AuthUsernameOrEmail.IdentOrAltRequired',
+                'Either "{identifier}" or "{alt_identifier}" are required',
+                [
+                    'identifier' => Member::singleton()->fieldLabel($ident),
+                    'alt_identifier' => Member::singleton()->fieldLabel($alt_ident)
+                ]
+            );
+
+            $this->validationError($ident, $message, 'required');
+            $this->validationError($alt_ident, $message, 'required');
+
+            return false;
+        }
+
         $valid = parent::php($data);
-        $ident = (string)Member::config()->alt_identifier_field;
 
         // If the primary ident was valid, check the alt
         if ($valid) {
             // Only validate identifier field if it's actually set.
             $id = isset($data['ID']) ? (int)$data['ID'] : 0;
-            if (isset($data[$ident])) {
+            if (isset($data[$alt_ident])) {
                 if (!$id && ($ctrl = $this->form->getController())) {
                     // get the record when within GridField (Member editing page in CMS)
                     if ($ctrl instanceof GridFieldDetailForm_ItemRequest && $record = $ctrl->getRecord()) {
@@ -43,18 +66,18 @@ class UsernameOrEmailValidator extends Member_Validator
                 // set the found ID to the data array, so that extensions can also use it
                 $data['ID'] = $id;
 
-                $members = Member::get()->filter($ident, $data[$ident]);
+                $members = Member::get()->filter($alt_ident, $data[$alt_ident]);
                 if ($id) {
                     $members = $members->exclude('ID', $id);
                 }
 
                 if ($members->count() > 0) {
                     $this->validationError(
-                        $ident,
+                        $alt_ident,
                         _t(
                             'SilverStripe\\Security\\Member.VALIDATIONMEMBEREXISTS',
                             'A member already exists with the same {identifier}',
-                            ['identifier' => Member::singleton()->fieldLabel($ident)]
+                            ['identifier' => Member::singleton()->fieldLabel($alt_ident)]
                         ),
                         'required'
                     );
@@ -62,6 +85,7 @@ class UsernameOrEmailValidator extends Member_Validator
                 }
             }
         }
+
         return $valid;
     }
 }
